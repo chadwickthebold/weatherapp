@@ -1,0 +1,44 @@
+{
+  "coord": {
+    "lon": -74.01,
+    "lat": 40.71
+  },
+  "sys": {
+    "message": 0.0958,
+    "country": "US",
+    "sunrise": 1422878666,
+    "sunset": 1422915305
+  },
+  "weather": [
+    {
+      "id": 501,
+      "main": "Rain",
+      "description": "moderate rain",
+      "icon": "10d"
+    }
+  ],
+  "base": "cmc stations",
+  "main": {
+    "temp": 276.349,
+    "temp_min": 276.349,
+    "temp_max": 276.349,
+    "pressure": 998.55,
+    "sea_level": 1012.75,
+    "grnd_level": 998.55,
+    "humidity": 99
+  },
+  "wind": {
+    "speed": 2.87,
+    "deg": 57.5
+  },
+  "clouds": {
+    "all": 92
+  },
+  "rain": {
+    "3h": 9
+  },
+  "dt": 1422885459,
+  "id": 5128581,
+  "name": "New York",
+  "cod": 200
+}

@@ -1,0 +1,31 @@
+{
+  "name": "weatherapp",
+  "version": "1.0.0",
+  "description": "A simple weather comparison app",
+  "main": "weatherapp.html",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-changed": "^1.1.1",
+    "gulp-clean": "^0.3.1",
+    "gulp-concat": "^2.4.3",
+    "gulp-jasmine": "^2.0.0",
+    "gulp-less": "^2.0.1",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^1.1.0",
+    "gulp-util": "^3.0.3"
+  },
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.com/chadwickthebold/weatherapp"
+  },
+  "author": "Tyler Chadwick",
+  "license": "MIT"
+}

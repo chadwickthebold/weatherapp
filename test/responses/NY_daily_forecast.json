@@ -1,0 +1,194 @@
+{
+  "cod": "200",
+  "message": 0.501,
+  "city": {
+    "id": 5128581,
+    "name": "New York",
+    "coord": {
+      "lon": -74.005966,
+      "lat": 40.714272
+    },
+    "country": "US",
+    "population": 0,
+    "sys": {
+      "population": 0
+    }
+  },
+  "cnt": 7,
+  "list": [
+    {
+      "dt": 1422896400,
+      "temp": {
+        "day": 32.18,
+        "min": 18.64,
+        "max": 32.18,
+        "night": 18.64,
+        "eve": 26.56,
+        "morn": 32.18
+      },
+      "pressure": 988.84,
+      "humidity": 100,
+      "weather": [
+        {
+          "id": 601,
+          "main": "Snow",
+          "description": "snow",
+          "icon": "13d"
+        }
+      ],
+      "speed": 6.42,
+      "deg": 16,
+      "clouds": 92,
+      "rain": 2.5,
+      "snow": 2.88
+    },
+    {
+      "dt": 1422982800,
+      "temp": {
+        "day": 23.52,
+        "min": 11.12,
+        "max": 24.44,
+        "night": 11.12,
+        "eve": 17.24,
+        "morn": 14.14
+      },
+      "pressure": 1015.77,
+      "humidity": 47,
+      "weather": [
+        {
+          "id": 800,
+          "main": "Clear",
+          "description": "sky is clear",
+          "icon": "01d"
+        }
+      ],
+      "speed": 4.15,
+      "deg": 279,
+      "clouds": 0
+    },
+    {
+      "dt": 1423069200,
+      "temp": {
+        "day": 27.57,
+        "min": 12.36,
+        "max": 32.95,
+        "night": 32.95,
+        "eve": 23.94,
+        "morn": 12.36
+      },
+      "pressure": 1012.45,
+      "humidity": 82,
+      "weather": [
+        {
+          "id": 601,
+          "main": "Snow",
+          "description": "snow",
+          "icon": "13d"
+        }
+      ],
+      "speed": 4.99,
+      "deg": 218,
+      "clouds": 92,
+      "snow": 6
+    },
+    {
+      "dt": 1423155600,
+      "temp": {
+        "day": 21.79,
+        "min": 6.15,
+        "max": 26.89,
+        "night": 6.15,
+        "eve": 13.23,
+        "morn": 26.89
+      },
+      "pressure": 1030.86,
+      "humidity": 66,
+      "weather": [
+        {
+          "id": 601,
+          "main": "Snow",
+          "description": "snow",
+          "icon": "13d"
+        }
+      ],
+      "speed": 9.33,
+      "deg": 339,
+      "clouds": 88,
+      "snow": 2.5
+    },
+    {
+      "dt": 1423242000,
+      "temp": {
+        "day": 15.6,
+        "min": -0.09,
+        "max": 20.41,
+        "night": 20.41,
+        "eve": 16.05,
+        "morn": -0.09
+      },
+      "pressure": 1031.81,
+      "humidity": 0,
+      "weather": [
+        {
+          "id": 600,
+          "main": "Snow",
+          "description": "light snow",
+          "icon": "13d"
+        }
+      ],
+      "speed": 3.2,
+      "deg": 205,
+      "clouds": 0,
+      "snow": 0.43
+    },
+    {
+      "dt": 1423328400,
+      "temp": {
+        "day": 27.72,
+        "min": 4.69,
+        "max": 27.72,
+        "night": 4.69,
+        "eve": 13.15,
+        "morn": 25.88
+      },
+      "pressure": 1008.94,
+      "humidity": 0,
+      "weather": [
+        {
+          "id": 601,
+          "main": "Snow",
+          "description": "snow",
+          "icon": "13d"
+        }
+      ],
+      "speed": 12.01,
+      "deg": 302,
+      "clouds": 84,
+      "snow": 2.93
+    },
+    {
+      "dt": 1423414800,
+      "temp": {
+        "day": 8.8,
+        "min": 1.11,
+        "max": 9.57,
+        "night": 5.77,
+        "eve": 9.57,
+        "morn": 1.11
+      },
+      "pressure": 1020.5,
+      "humidity": 0,
+      "weather": [
+        {
+          "id": 800,
+          "main": "Clear",
+          "description": "sky is clear",
+          "icon": "01d"
+        }
+      ],
+      "speed": 9.74,
+      "deg": 318,
+      "clouds": 0
+    }
+  ]
+}

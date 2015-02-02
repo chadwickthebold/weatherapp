@@ -1,0 +1,24 @@
+{
+  "name": "weatherapp",
+  "version": "1.0.0",
+  "authors": [
+    "Tyler Chadwick <chadwickthebold@gmail.com>"
+  ],
+  "description": "A simple weather comparison app",
+  "main": "weatherapp.html",
+  "license": "MIT",
+  "homepage": "http://bitbucket.com/chadwickthebold/weatherapp",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "pure": "~0.5.0",
+    "jquery": "~2.1.3",
+    "backbone": "~1.1.2"
+  }
+}
