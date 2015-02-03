@@ -12,3 +12,4 @@ This project is a demonstration of a simple app comparing the weather between tw
 ## TODO
 
 - [ ] Add unrequired node_modules and bower_components directories to .gitignore
+- [ ] Create a distribution build with concat'd/min'd/uglify'd files
