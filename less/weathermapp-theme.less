@@ -1,0 +1,100 @@
+.wa-theme-light {
+	@bgColor: #E1E1E1;
+	@bgColorAlt: #F7F7F7;
+	@hoverColor: #D3D3D3;
+	@outlineColor: #CCCCCC;
+	@utilColor: #2196F3;
+	@errorColor: #B71C1C;
+	@primaryColor: #DE584C; //Red
+	@secondaryColor: #28609B; //Blue
+
+	.wa-theme-base();
+
+}
+
+
+
+
+
+.wa-theme-dark {
+
+}
+
+
+
+
+
+
+.wa-theme-base() {
+	background-color: @bgColor;
+
+
+
+
+
+	/* Icon styles */
+	.fa-pulse {
+		color: @utilColor;
+	}
+
+	.fa-exclamation-triangle {
+		color: @errorColor;
+	}
+
+
+
+
+	/* Page component styles */
+	.wa-stats {
+
+		.wa-stats-city {
+
+			.wa-city-search {
+				border-color: @outlineColor;
+
+				input {
+					background-color: @bgColor;
+
+					&:focus {
+						background-color: @bgColorAlt;
+					}
+
+				}
+
+				.wa-search-suggestions {
+
+					.wa-suggestions-elem {
+
+						&:hover {
+							background-color: @hoverColor;
+						}
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+
+
+	.wa-chart {
+
+	}
+
+
+	.wa-tooltip {
+		border-color: @outlineColor;
+		background-color: @bgColorAlt;
+	}
+
+
+
+
+
+
+
+
+}
