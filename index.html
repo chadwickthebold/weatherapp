@@ -16,13 +16,7 @@
 				<link rel="stylesheet" type="text/css" href="css/styles.css">
 
 		</head>
-		<body class="wa-theme-light weatherapp">
-				<header><h1>Weatherapp • Sample Application</h1></header>
-
-
-					<!--[if lt IE 8]>
-							<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-					<![endif]-->
+		<body class="wa-theme-light">
 
 
 
@@ -30,60 +24,145 @@
 
 
 
+			<section id="weatherapp">
 
 
 
-				<section class="wa-stats wa-stats-vertical">
+				<header id="header" class="wa-header">
+					<h1 class="wa-title">Weatherapp • Sample Application</h1>
+					<button id="app-settings" class="wa-settings pure-button">
+						Settings <span class="fa fa-lg fa-cogs"></span>
+					</button>
+				</header>
 
-				<div class="wa-stats-city">
 
-					<div class="wa-city-search">
 
-						<input id="city1-search" type="text" placeholder="New York, NY">
+				<section id="statistics" class="wa-stats">
 
-						<div class="wa-icon-container">
+					<div id="statistics-controls" class="wa-stats-controls">
 
-							<span title="Loading..." class="fa fa-lg fa-fw fa-spinner fa-pulse is-inactive"></span>
-							<span title="No results returned, please try another search term" class="fa fa-lg fa-fw fa-exclamation-circle is-inactive"></span>
-							<span title="An error occurred, please try another search term" class="fa fa-lg fa-fw fa-exclamation-triangle is-inactive"></span>
+						<button id="stats-current" class="pure-button pure-button-active" name="statistics-type" title="Current metrics">
+							Current Conditions
+						</button>
 
-						</div>
+						<button id="statis-hourly" class="pure-button" name="statistics-type" title="Hourly forecast">
+							Hourly Forecast
+						</button>
 
-						<ul class="wa-search-suggestions is-closed">
-							
-							<li>City 1</li>
-							<li>City 2</li>
-							<li>City 3</li>
-
-						</ul>
+						<button id="statis-daily" class="pure-button" name="statistics-type" title="daily forecast">
+							Daily Forecast
+						</button>
 
 					</div>
 
-				</div>
+					<table>
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+								<th>
+
+									<div id="city1-search" class="wa-city-search" data-citymodel="city1">
+
+										<input type="text" placeholder="New York, NY">
+
+										<div class="wa-icon-container">
+
+											<span title="Loading..." class="fa fa-lg fa-fw fa-spinner fa-pulse is-inactive"></span>
+											<span title="No results returned, please try another search term" class="fa fa-lg fa-fw fa-exclamation-circle is-inactive"></span>
+											<span title="An error occurred, please try another search term" class="fa fa-lg fa-fw fa-exclamation-triangle is-inactive"></span>
+
+										</div>
+
+										<ul class="wa-search-suggestions is-closed"></ul>
+
+									</div>
+
+								</th>
+
+								<th>
+
+									<div id="city2-search" class="wa-city-search" data-citymodel="city2">
+
+										<input type="text" placeholder="London, GB">
+
+										<div class="wa-icon-container">
+
+											<span title="Loading..." class="fa fa-lg fa-fw fa-spinner fa-pulse is-inactive"></span>
+											<span title="No results returned, please try another search term" class="fa fa-lg fa-fw fa-exclamation-circle is-inactive"></span>
+											<span title="An error occurred, please try another search term" class="fa fa-lg fa-fw fa-exclamation-triangle is-inactive"></span>
+
+										</div>
+
+										<ul class="wa-search-suggestions is-closed"></ul>
+
+									</div>
+
+								</th>
+
+							</tr>
+
+						</thead>
+
+						<tbody>
+							
+							<tr>
+								<th>Temperature</th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>Conditions</th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>Humidity</th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>Wind</th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>Pressure</th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th>Cloud Coverage</th>
+								<td></td>
+								<td></td>
+							</tr>
+
+						</tbody>
+
+					</table>
 
 				</section>
 
 
 
-
-
-				<section class="wa-chart">
-					
+				<section id="charts" class="wa-charts">
+					<div id="forecast-chart">
+						
+					</div>
 				</section>
 
 
 
-
-
-
-
-
-
-				<footer>
+				<footer id="footer" class="wa-footer">
 					<p>Created by <a href="http://tylerchadwick.com">Tyler Chadwick</a></p>
 				</footer>
 
 
+
+			</section>
 
 
 
@@ -94,8 +173,15 @@
 
 			<script src="bower_components/jquery/dist/jquery.min.js"></script>
 			<script src="bower_components/modernizr/modernizr.js"></script>
+
+	<!--<script src="bower_components/backbone/backbone.js"></script>
+			<script src="bower_components/underscore/underscore-min.js"></script>
+			<script src="bower_components/mustache/mustache.min.js"></script> -->
+
 			<script src="bower_components/qtip2/jquery.qtip.min.js"></script>
 
 			<script src="js/main.js"></script>
+
+
 		</body>
 </html>

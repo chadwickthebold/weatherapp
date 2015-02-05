@@ -1,9 +1,8 @@
-.weatherapp {
+#weatherapp {
 	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
 	font-size: 13px;
 	line-height: 1.6;
 	margin: 0;
-	padding: 1rem;
 
 
 	.wa-icon-container {
@@ -15,58 +14,88 @@
 		cursor: pointer;
 	}
 
+	.wa-header{
+		padding: 1rem;
+
+		.wa-title {
+			display: inline-block;
+			margin: 0;
+			vertical-align: middle;
+		}
+
+		.wa-settings {
+			margin-left: 1rem;
+			vertical-align: middle;
+		}
+	}
+
 
 
 
 
 
 	.wa-stats {
+		display: inline-block;
+		vertical-align: top;
+		padding: 1rem;
 
-		.wa-stats-city {
+		th,td {
+			padding: 0.5rem;
+		}
+
+		.wa-stats-controls {
+			padding: 0.5rem 0;
+			text-align: center;
+		}
+
+		.wa-city-search {
 			position: relative;
+			display: inline-block;
 
-			.wa-city-search {
-				display: inline-block;
-				border-width: 1px; 
-				border-style: solid;
+			input {
+				padding: 0.5rem;
+				border: none;
+			}
 
-				input {
-					padding: 0.5rem;
-					border: none;
-				}
+			.wa-icon-container {
 
-				.wa-icon-container {
-
-					.is-inactive {
-							display: none;
-					}
-				}
-
-				.wa-search-suggestions {
-					position: absolute;
-					border: 1px solid #CCCCCC;
-					background-color: #f7f7f7;
-					margin: 0;
-					list-style: none;
-					padding: 0;
-					box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
-
-
-					&.is-closed {
+				.is-inactive {
 						display: none;
-					}
+				}
+			}
 
-					.wa-suggestions-elem {
-						padding: 0.25rem;
-						cursor: pointer;
-					}
+			.wa-search-suggestions {
+				position: absolute;
+				border: 1px solid #CCCCCC;
+				background-color: #f7f7f7;
+				margin: 0;
+				list-style: none;
+				padding: 0;
+				text-align: left;
+				box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
 
+
+				&.is-closed {
+					display: none;
+				}
+
+				.wa-suggestions-elem {
+					padding: 0.25rem;
+					cursor: pointer;
 				}
 
 			}
 
 		}
 
+	}
+
+	.wa-charts {
+		min-height: 20rem;
+		width: 40rem;
+		//display: inline-block;
+		vertical-align: top;
+		padding: 1rem;
 	}
 
 

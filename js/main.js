@@ -1,9 +1,9 @@
-jQuery(function() {
-
-
 // Application namespace
 var weatherapp = weatherapp || {};
 
+
+
+(function() {
 
 
 
@@ -96,6 +96,22 @@ weatherapp.geocoding = {
 
 
 
+// Data Models
+weatherapp.city1 = {
+	searchResults : {},
+	weather_current : {},
+	name : '',
+	id : 0
+};
+
+weatherapp.city2 = {
+	searchResults : {},
+	weather_current : {},
+	name : '',
+	id : 0
+};
+
+weatherapp.chart = {};
 
 
 
@@ -117,10 +133,6 @@ weatherapp.geocoding = {
 
 
 
-
-
-
-
 function populateSearchSuggestions(input, data) {
 	var searchbox = $(input),
 			container = searchbox.closest('.wa-city-search'),
@@ -130,6 +142,23 @@ function populateSearchSuggestions(input, data) {
 			listItem,
 			suggestionElem;
 
+	var getUSState = function(suggestionElem, geocodingParams, listItem, suggestionList) {
+		$.get(weatherapp.geocoding.url + '?' + $.param(geocodingParams))
+		.done(function(data) {
+			for (var i = 0; i < data.results[0].address_components.length; i++) {
+				if (data.results[0].address_components[i].types.indexOf("administrative_area_level_1") > -1) {
+					suggestionElem.append(', ' + data.results[0].address_components[i].short_name);
+					suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + data.results[0].address_components[i].short_name);
+				}
+			}
+
+			suggestionElem.append(', ' + listItem.sys.country);
+			suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + listItem.sys.country);
+			suggestionList.append(suggestionElem);
+			
+		});
+	}
+
 	if (data.count) {
 
 		for (var i = 0; i < data.count; i++) {
@@ -138,41 +167,34 @@ function populateSearchSuggestions(input, data) {
 
 			if (listItem.name) {
 				suggestionElem.append(listItem.name)
+				suggestionElem.data('city_id', listItem.id);
+				suggestionElem.data('city_name', listItem.name);
 			}
 
 			if (listItem.sys && listItem.sys.country) {
 				if (listItem.sys.country == 'US') {
-					// icons.find('.fa-spinner').addClass('is-active').removeClass('is-inactive');
+					icons.find('.fa-spinner').addClass('is-active').removeClass('is-inactive');
 
-					// geocodingParams = {
-					// 	'key' : weatherapp.geocoding.apikey,
-					// 	'latlng' : listItem.coord.lat + ',' + listItem.coord.lon
-					// }
+					geocodingParams = {
+						'key' : weatherapp.geocoding.apikey,
+						'latlng' : listItem.coord.lat + ',' + listItem.coord.lon
+					}
 
-					// $.get(weatherapp.geocoding.url + '?' + $.param(geocodingParams))
-					// 	.done(function(data) {
-					// 		//suggestionElem.append(', ' + data.results[0].addressComponents);
-					// 	}).fail(function() {
-
-					// 	}).always(function() {
-					// 		icons.find('.fa-spinner').addClass('is-inactive').removeClass('is-active');
-					// 		suggestionElem.append(', ' + listItem.sys.country);
-					// 	});
-
-					
-					
+					getUSState(suggestionElem, geocodingParams, listItem, suggestionList);
 
 
 				} else {
 					suggestionElem.append(', ' + listItem.sys.country);
+					suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + listItem.sys.country);
+					suggestionList.append(suggestionElem);
 				}
 			}
 
-			suggestionList.append(suggestionElem);
+			icons.find('.fa-spinner').addClass('is-inactive').removeClass('is-active');
 		}
 
 		suggestionList.css('min-width', container.width());
-		suggestionList.toggleClass('is-closed');
+		suggestionList.removeClass('is-closed');
 
 	} else {
 		icons.find('.fa-exclamation-circle').toggleClass('is-active is-inactive');
@@ -187,10 +209,11 @@ function populateSearchSuggestions(input, data) {
 
 
 function citysearch() {
-	var input = this,
-			findParameters = $.extend({}, weatherapp.openweathermap.options.find, {'q':input.value}),
+	var input = $(this),
+			findParameters = $.extend({}, weatherapp.openweathermap.options.find, {'q':input.val()}),
 			urlString = weatherapp.openweathermap.urls.find + '?' + $.param(findParameters),
-			icons = $(input).siblings('.wa-icon-container');
+			icons = input.siblings('.wa-icon-container'),
+			city = input.closest('.wa-city-search').data('citymodel');
 
 	icons.find('.fa-spinner').toggleClass('is-active is-inactive');
 	console.log('making ajax request for q=' + input.value);
@@ -200,11 +223,14 @@ function citysearch() {
 		.done(function(data) {
 			icons.find('.fa-spinner').toggleClass('is-active is-inactive');
 			populateSearchSuggestions(input, data);
+			weatherapp[city].searchResults = data;
 		}).fail(function() {
 			icons.find('.fa-spinner').toggleClass('is-active is-inactive');
 			icons.find('.fa-exclamation-triangle').toggleClass('is-active is-inactive');
 		});
 };
+
+
 
 var citysearch_debounced = debounce(citysearch, 750);
 
@@ -218,7 +244,25 @@ var citysearch_debounced = debounce(citysearch, 750);
 
 
 // Search funtionality
-$('#city1-search').on('keydown.city1-search', citysearch_debounced);
+
+$('.wa-city-search').on('keydown.city-search', 'input', citysearch_debounced)
+	.on('click.select-city', '.wa-suggestions-elem', function() {
+		var elem = $(this),
+				cityName = elem.data('city_name'),
+				cityID = elem.data('city_id'),
+				input = elem.closest('.wa-city-search').find('input'),
+				city = elem.closest('.wa-city-search').data('citymodel');
+
+		input.val(cityName);
+
+		weatherapp[city].name = cityName;
+		weatherapp[city].id = cityID;
+		weatherapp[city].weather_current = weatherapp[city].searchResults.list.filter(function( obj ) {
+			return obj.id == cityID;
+		})[0];
+
+		elem.parent().addClass('is-closed');
+});
 
 
 
@@ -250,10 +294,6 @@ $('.fa[title]').qtip({
 
 
 
-// Should end up with these elements
-weatherapp.city1 = {}
-weatherapp.city2 = {}
-weatherapp.chart = {}
 
 
 
@@ -261,4 +301,4 @@ weatherapp.chart = {}
 
 
 
-});
+}());

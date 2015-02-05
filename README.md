@@ -36,3 +36,5 @@ A deployed version of this project can be viewed at [tylerchadwick.com/weatherap
 - [ ] Adjust the tooltip styles to reflect the selected theme
 - [ ] Verify Browser support
 - [ ] Use promises in a more generic way in resolving lat/long coordinates and states
+- [ ] Implement MVC to handle data manipulation, views, and component relationships
+- [ ] Add translations with i18next
