@@ -350,7 +350,7 @@ weatherapp.city = function(designation) {
 		$deferred = $.Deferred();
 		return weatherapp.openweathermap.getCurrent(id).then(function(data) {
 			self.weather_current = data;
-			if (data.sys.country == "US" && data.coord.lon && data.coord.lat) { // Need to find state name
+			if (data.sys && data.sys.country == "US" && data.coord.lon && data.coord.lat) { // Need to find state name
 				return weatherapp.geocoding.requestState(''+data.coord.lat+','+data.coord.lon).done(function(geocode) {
 					self.name = data.name + ', ' + weatherapp.geocoding.getState(geocode) + ', ' + data.sys.country;
 					$input.val(self.name);
