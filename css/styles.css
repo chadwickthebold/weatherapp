@@ -1,0 +1,238 @@
+#weatherapp {
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+#weatherapp .wa-icon-container {
+  display: inline-block;
+  min-width: 1.7rem;
+}
+#weatherapp .wa-header {
+  padding: 1rem;
+}
+#weatherapp .wa-header .wa-title {
+  display: inline-block;
+  margin: 0;
+}
+#weatherapp .wa-header .wa-settings {
+  margin-top: 0.45rem;
+  float: right;
+  display: none;
+}
+#weatherapp .wa-controls {
+  padding: 0 0 1rem 0;
+  text-align: right;
+}
+#weatherapp .wa-stats {
+  display: block;
+  margin: 0 auto;
+  vertical-align: top;
+  padding: 1rem;
+}
+#weatherapp .wa-stats .wa-stats-table {
+  margin: 0 auto;
+  width: 41rem;
+}
+#weatherapp .wa-stats .wa-stats-table th,
+#weatherapp .wa-stats .wa-stats-table td {
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+#weatherapp .wa-stats .wa-stats-table td {
+  text-align: center;
+}
+#weatherapp .wa-stats .wa-stats-table tbody.is-visible,
+#weatherapp .wa-stats .wa-stats-table thead tr {
+  display: block;
+}
+#weatherapp .wa-stats .wa-stats-table thead th {
+  width: 17rem;
+}
+#weatherapp .wa-stats .wa-stats-table thead th:first-child {
+  width: 7rem;
+}
+#weatherapp .wa-stats .wa-stats-table tbody {
+  display: none;
+  max-height: 20rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#weatherapp .wa-stats .wa-stats-table tbody td {
+  width: 17rem;
+}
+#weatherapp .wa-stats .wa-stats-table tbody th {
+  width: 7rem;
+}
+#weatherapp .wa-stats .wa-stats-table .wa-current-table .wa-current-icon {
+  font-size: 3rem;
+  vertical-align: middle;
+  margin-right: 2rem;
+}
+#weatherapp .wa-stats .wa-stats-table .wa-forecast-card .wa-card-icon {
+  display: block;
+  float: left;
+  font-size: 4rem;
+  margin: 0.5rem 1rem;
+  width: 1em;
+}
+#weatherapp .wa-stats .wa-stats-table .wa-forecast-card .temp-max {
+  color: red;
+}
+#weatherapp .wa-stats .wa-stats-table .wa-forecast-card .temp-min {
+  color: blue;
+}
+#weatherapp .wa-stats .wa-city-search {
+  position: relative;
+  display: inline-block;
+}
+#weatherapp .wa-stats .wa-city-search input {
+  padding: 0.5rem;
+  border: none;
+}
+#weatherapp .wa-stats .wa-city-search .wa-icon-container .is-inactive {
+  display: none;
+}
+#weatherapp .wa-stats .wa-city-search .wa-search-suggestions {
+  position: absolute;
+  border: 1px solid #CCCCCC;
+  background-color: #f7f7f7;
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+}
+#weatherapp .wa-stats .wa-city-search .wa-search-suggestions.is-closed {
+  display: none;
+}
+#weatherapp .wa-stats .wa-city-search .wa-search-suggestions .wa-suggestions-elem {
+  padding: 0.25rem;
+  cursor: pointer;
+}
+#weatherapp .wa-charts {
+  min-height: 20rem;
+  vertical-align: top;
+  padding: 1rem;
+  margin: 0 auto;
+}
+#weatherapp .wa-footer {
+  padding: 0.25rem;
+}
+
+.wa-theme-light {
+  background-color: #ffffff;
+  color: #000000;
+  /* Icon styles */
+  /* Page component styles */
+}
+.wa-theme-light .fa-pulse {
+  color: #2196f3;
+}
+.wa-theme-light .fa-exclamation-triangle {
+  color: #b71c1c;
+}
+.wa-theme-light .wa-header {
+  border-bottom: 1px solid #333333;
+}
+.wa-theme-light .wa-stats td,
+.wa-theme-light .wa-stats th {
+  border: 1px solid #cccccc;
+}
+.wa-theme-light .wa-stats thead th {
+  border-top-width: 0;
+}
+.wa-theme-light .wa-stats thead th:last-child {
+  border-right-width: 0;
+}
+.wa-theme-light .wa-stats th:first-child {
+  border-left-width: 0;
+}
+.wa-theme-light .wa-stats td:last-child {
+  border-right-width: 0;
+}
+.wa-theme-light .wa-stats tbody {
+  border-bottom: 1px solid #cccccc;
+}
+.wa-theme-light .wa-stats tbody tr:first-child th,
+.wa-theme-light .wa-stats tbody tr:first-child td {
+  border-top-width: 0;
+}
+.wa-theme-light .wa-stats tbody tr:last-child th,
+.wa-theme-light .wa-stats tbody tr:last-child td {
+  border-bottom-width: 0;
+}
+.wa-theme-light .wa-stats .wa-city-search {
+  border: 1px solid #333333;
+}
+.wa-theme-light .wa-stats .wa-city-search input {
+  background-color: #ffffff;
+}
+.wa-theme-light .wa-stats .wa-city-search .wa-search-suggestions .wa-suggestions-elem:hover {
+  background-color: #d3d3d3;
+}
+.wa-theme-light .wa-tooltip {
+  border-color: #cccccc;
+  background-color: #e1e1e1;
+}
+.wa-theme-light .wa-footer {
+  border-top: 1px solid #333333;
+}
+.wa-theme-dark {
+  background-color: #333333;
+  color: #f7f7f7;
+  /* Icon styles */
+  /* Page component styles */
+}
+.wa-theme-dark .fa-pulse {
+  color: #2196f3;
+}
+.wa-theme-dark .fa-exclamation-triangle {
+  color: #b71c1c;
+}
+.wa-theme-dark .wa-header {
+  border-bottom: 1px solid #e1e1e1;
+}
+.wa-theme-dark .wa-stats td,
+.wa-theme-dark .wa-stats th {
+  border: 1px solid #f7f7f7;
+}
+.wa-theme-dark .wa-stats thead th {
+  border-top-width: 0;
+}
+.wa-theme-dark .wa-stats thead th:last-child {
+  border-right-width: 0;
+}
+.wa-theme-dark .wa-stats th:first-child {
+  border-left-width: 0;
+}
+.wa-theme-dark .wa-stats td:last-child {
+  border-right-width: 0;
+}
+.wa-theme-dark .wa-stats tbody {
+  border-bottom: 1px solid #f7f7f7;
+}
+.wa-theme-dark .wa-stats tbody tr:first-child th,
+.wa-theme-dark .wa-stats tbody tr:first-child td {
+  border-top-width: 0;
+}
+.wa-theme-dark .wa-stats tbody tr:last-child th,
+.wa-theme-dark .wa-stats tbody tr:last-child td {
+  border-bottom-width: 0;
+}
+.wa-theme-dark .wa-stats .wa-city-search {
+  border: 1px solid #e1e1e1;
+}
+.wa-theme-dark .wa-stats .wa-city-search input {
+  background-color: #333333;
+}
+.wa-theme-dark .wa-stats .wa-city-search .wa-search-suggestions .wa-suggestions-elem:hover {
+  background-color: #666666;
+}
+.wa-theme-dark .wa-tooltip {
+  border-color: #f7f7f7;
+  background-color: #4a4a4a;
+}
+.wa-theme-dark .wa-footer {
+  border-top: 1px solid #e1e1e1;
+}

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+		<head>
+				<meta charset="utf-8">
+				<meta http-equiv="X-UA-Compatible" content="IE=edge">
+				<title>Weatherapp • Sample Application</title>
+				<meta name="description" content="">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+
+				<link rel="stylesheet" type="text/css" href="bower_components/pure/pure-min.css">
+				<link rel="stylesheet" type="text/css" href="bower_components/pure/grids-responsive-min.css">
+
+				
+
+				<link rel="stylesheet" type="text/css" href="bower_components/components-font-awesome/css/font-awesome.min.css">
+
+				<link rel="stylesheet" type="text/css" href="bower_components/weather-icons/css/weather-icons.min.css">
+
+				<link rel="stylesheet" type="text/css" href="bower_components/qtip2/jquery.qtip.min.css">
+				<link rel="stylesheet" type="text/css" href="bower_components/c3js-chart/c3.css">
+				<link rel="stylesheet" type="text/css" href="css/styles.css">
+
+		</head>
+		<body class="wa-theme-light">
+
+
+
+
+
+
+
+			<section id="weatherapp" class="pure-g">
+
+
+
+				<header id="header" class="wa-header pure-u-1">
+					<h1 class="wa-title">Weatherapp • Sample Application</h1>
+					<button id="app-settings" class="wa-settings pure-button">
+						Settings <span class="fa fa-lg fa-cogs"></span>
+					</button>
+				</header>
+
+
+
+				<section id="statistics" class="wa-stats pure-u-1 pure-u-md-2-3 pure-u-lg-1-2">
+
+					<div id="statistics-controls" class="wa-controls wa-stats-controls">
+
+						<button id="stats-current" data-tabletype="current" class="pure-button" name="statistics-type" title="Current metrics">
+							Current Conditions
+						</button>
+
+						<button id="statis-hourly" data-tabletype="hourly" class="pure-button" name="statistics-type" title="Hourly forecast">
+							Hourly Forecast
+						</button>
+
+						<button id="statis-daily" data-tabletype="daily" class="pure-button" name="statistics-type" title="daily forecast">
+							Daily Forecast
+						</button>
+
+					</div>
+
+					<table class="wa-stats-table">
+
+						<thead>
+
+							<tr>
+
+								<th></th>
+
+								<th>
+
+									<div id="city1-search" class="wa-city-search" data-citymodel="city1">
+
+										<input type="text" placeholder="New York, NY" class="tooltip-enabled" title="Type in this box to search for a city">
+
+										<div class="wa-icon-container">
+
+											<span title="Loading..." class="fa fa-lg fa-fw fa-spinner fa-pulse is-inactive"></span>
+											<span title="No results returned, please try another search term" class="fa fa-lg fa-fw fa-exclamation-circle is-inactive"></span>
+											<span title="An error occurred, please try another search term" class="fa fa-lg fa-fw fa-exclamation-triangle is-inactive"></span>
+
+										</div>
+
+										<ul class="wa-search-suggestions is-closed"></ul>
+
+									</div>
+
+								</th>
+
+								<th>
+
+									<div id="city2-search" class="wa-city-search" data-citymodel="city2">
+
+										<input type="text" placeholder="London, GB" class="tooltip-enabled" title="Type in this box to search for a city">
+
+										<div class="wa-icon-container">
+
+											<span title="Loading..." class="fa fa-lg fa-fw fa-spinner fa-pulse is-inactive"></span>
+											<span title="No results returned, please try another search term" class="fa fa-lg fa-fw fa-exclamation-circle is-inactive"></span>
+											<span title="An error occurred, please try another search term" class="fa fa-lg fa-fw fa-exclamation-triangle is-inactive"></span>
+
+										</div>
+
+										<ul class="wa-search-suggestions is-closed"></ul>
+
+									</div>
+
+								</th>
+
+							</tr>
+
+						</thead>
+
+						<tbody id="stats_current" class="wa-current-table">
+							
+							<tr>
+								<th class="temp">Temperature <span class="unit">(&deg;C)</span></th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th class="cond">Conditions</th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th class="hum">Humidity</th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th class="wind">Wind <span class="unit">(m/s)</span></th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th class="pres">Pressure <span class="unit">(hPa)</span></th>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<th class="cloud">Cloud Coverage</th>
+								<td></td>
+								<td></td>
+							</tr>
+
+						</tbody>
+
+						<tbody id="stats_hourly" class="wa-current-hourly">
+							
+						</tbody>
+
+						<tbody id="stats_daily" class="wa-current-daily">
+							
+						</tbody>
+
+					</table>
+
+				</section>
+
+
+
+				<section id="chart-container" class="wa-charts pure-u-1 pure-u-md-2-3 pure-u-lg-1-2">
+
+					<div id="charts-controls" class="wa-controls wa-charts-controls">
+
+						<button id="charts-temp" data-charttype="temp" class="pure-button" title="Temperature">
+							Temperature
+						</button>
+
+						<button id="charts-atmosphere" data-charttype="atmosphere" class="pure-button" title="Atmospheric conditions">
+							Atmosphere
+						</button>
+
+						<button id="charts-wind" data-charttype="wind" class="pure-button" title="Wind speed">
+							Wind
+						</button>
+
+					</div>
+
+					<div id="chart" class="wa-charts-container">
+						
+					</div>
+
+				</section>
+
+
+
+				<footer id="footer" class="wa-footer pure-u-1">
+					<p>Created by <a href="http://tylerchadwick.com">Tyler Chadwick</a></p>
+				</footer>
+
+
+
+			</section>
+
+
+
+
+
+
+
+
+			<script src="bower_components/jquery/dist/jquery.min.js"></script>
+			<script src="bower_components/modernizr/modernizr.js"></script>
+
+			<script src="bower_components/d3/d3.min.js"></script>
+			<script src="bower_components/c3js-chart/c3.min.js"></script>
+
+			<script src="bower_components/qtip2/jquery.qtip.min.js"></script>
+
+			<script src="js/main.js"></script>
+
+
+		</body>
+</html>
