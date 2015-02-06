@@ -113,7 +113,7 @@ weatherapp.options = {
 
 
 /*
- * openWeatherMap configuration
+ * openWeatherMap configuration and utilities
  */
 weatherapp.openweathermap = (function() {
 	var openweathermap = {},
@@ -124,14 +124,6 @@ weatherapp.openweathermap = (function() {
 				'forecast3h' : 'http://api.openweathermap.org/data/2.5/forecast?',
 				'forecast16d' : 'http://api.openweathermap.org/data/2.5/forecast/daily?',
 				'history' : 'http://api.openweathermap.org/data/2.5/history/city?'
-			},
-			options = {
-				find : {
-					'q' : '',
-					'type' : 'like',
-					'units' : weatherapp.options.units,
-					'APIID' : apikey
-				}
 			},
 			iconMap = { // Condition icons for weather-icons
 				'01d' : 'wi-day-sunny',
@@ -164,6 +156,14 @@ weatherapp.openweathermap = (function() {
 
 		// Search for a given city name, returns array of objects with name and id
 		function citySearch(name) {
+			var params = {
+				q : name,
+				APIID : apikey,
+				type : "like",
+				units : weatherapp.options.units
+			}
+
+			return request(urls['find'], params);
 
 		}
 
@@ -204,10 +204,10 @@ weatherapp.openweathermap = (function() {
 	(function(self) {
 		self.apikey = apikey;
 		self.urls = urls;
-		self.options = options;
 		self.getCurrent = getCurrent;
 		self.getDaily = getDaily;
 		self.getHourly = getHourly;
+		self.citySearch = citySearch;
 		self.iconMap = iconMap;
 	}(openweathermap));
 
@@ -239,7 +239,7 @@ weatherapp.openweathermap = (function() {
 
 
 /*
- * Geocoding configuration
+ * Geocoding configuration and utilities
  */
 weatherapp.geocoding =  (function() {
 	var geocoding = {},
@@ -346,11 +346,12 @@ weatherapp.city = function(designation) {
 
 	//Set the city using a given ID, returning a deferred object to work with
 	function setCity(id) {
-		self.id = id;
-		return weatherapp.openweathermap.getCurrent(id).done(function(data) {
+		self.id = id,
+		$deferred = $.Deferred();
+		return weatherapp.openweathermap.getCurrent(id).then(function(data) {
 			self.weather_current = data;
 			if (data.sys.country == "US" && data.coord.lon && data.coord.lat) { // Need to find state name
-				weatherapp.geocoding.requestState(''+data.coord.lat+','+data.coord.lon).done(function(geocode) {
+				return weatherapp.geocoding.requestState(''+data.coord.lat+','+data.coord.lon).done(function(geocode) {
 					self.name = data.name + ', ' + weatherapp.geocoding.getState(geocode) + ', ' + data.sys.country;
 					$input.val(self.name);
 				});
@@ -423,23 +424,318 @@ weatherapp.city = function(designation) {
  */
 weatherapp.chart = (function() {
 	var chart = {},
-			$container = $('#charts'),
+			$me,
+			$container = $('#chart-container'),
 			$controls = $container.find('.wa-charts-controls'),
-			$chart = $container.find('.wa-charts-chart');
+			$chart = $container.find('.wa-charts-chart'),
+			active_type = '',
+			active_time = '',
+			chart_defaults = {
+				bindto : "#chart"
+			}
+
+
+
+
+
+
+
+
+	function getTempData() {
+		var temp = {},
+				numRows,
+				date,
+				timestamps = ['timestamps'],
+				data1 = [weatherapp.city1.name],
+				data2 = [weatherapp.city2.name];
+
+		temp.data = {};
+
+		temp.axis = {
+			y : {
+				label : {
+					text : "Temperature ( °C )",
+					position: 'outer-middle'
+				} 
+			}, 
+			x : {
+				label : {
+					text : "Time ( %m-%d %H:%M )",
+					position: "outer-right"
+				},
+				type: 'timeseries',
+				tick: {
+						format: '%m-%d %H:%M',
+						 culling: {
+								max: 7
+							}
+				}
+			}
+		}
+
+		temp.data.colors = {};
+		temp.data.colors[weatherapp.city1.name] = "#DE584C";
+		temp.data.colors[weatherapp.city2.name] = "#28609B";
+		temp.data.type = 'spline';
+		temp.data.x = "timestamps";
+		temp.data.columns = [];
+
+		numRows = Math.min(weatherapp.city1.hourly_forecast.cnt, weatherapp.city2.hourly_forecast.cnt);
+
+		for (var i = 0; i< numRows; i++) {
+			date = new Date(weatherapp.city1.hourly_forecast.list[i].dt * 1000);
+			timestamps.push(date);
+
+			data1.push(weatherapp.city1.hourly_forecast.list[i].main.temp);
+			data2.push(weatherapp.city2.hourly_forecast.list[i].main.temp);
+		}
+
+		temp.data.columns.push(timestamps);
+		temp.data.columns.push(data1);
+		temp.data.columns.push(data2);
+
+		return temp;
+	}
+
+
+
+
+
+
+
+
+
+
+	function getAtmosphereData() {
+		var atmosphere = {},
+				numRows,
+				timestamps = ['timestamps'],
+				data1_clouds = [weatherapp.city1.name + ' (Clouds)'],
+				data2_clouds = [weatherapp.city2.name+' (Clouds)']
+				data1_pressure = [weatherapp.city1.name+' (Pressure)']
+				data2_pressure = [weatherapp.city2.name+' (Pressure)'];
+
+		atmosphere.axis = {
+			y : {
+				label : {
+					text : "Pressure ( hPa )",
+					position: 'outer-middle'
+				} 
+			},
+			y2 : {
+				show : true,
+				label : {
+					text : "Cloud Coverage ( % )",
+					position: 'outer-middle'
+				}
+			},
+			x : {
+				label : {
+					text : "Time ( %m-%d %H:%M )",
+					position: "outer-right"
+				},
+				type: 'timeseries',
+				tick: {
+						format: '%m-%d %H:%M',
+						 culling: {
+								max: 7
+							}
+				}
+			}
+		}
+
+		atmosphere.data = {};
+		atmosphere.data.colors = {};
+		atmosphere.data.colors[weatherapp.city1.name+' (Clouds)'] = "#DE584C";
+		atmosphere.data.colors[weatherapp.city2.name+' (Clouds)'] = "#28609B";
+		atmosphere.data.colors[weatherapp.city1.name+' (Pressure)'] = "#DE584C";
+		atmosphere.data.colors[weatherapp.city2.name+' (Pressure)'] = "#28609B";
+		atmosphere.data.type = 'bar';
+		atmosphere.data.types = {};
+		atmosphere.data.types[weatherapp.city1.name+' (Pressure)'] = 'spline';
+		atmosphere.data.types[weatherapp.city2.name+' (Pressure)'] = 'spline';
+		atmosphere.data.x = "timestamps";
+		atmosphere.data.columns = [];
+		atmosphere.data.axes = {};
+		atmosphere.data.axes[weatherapp.city1.name+' (Clouds)'] = 'y2';
+		atmosphere.data.axes[weatherapp.city2.name+' (Clouds)'] = 'y2';
+		atmosphere.data.axes[weatherapp.city1.name+' (Pressure)'] = 'y';
+		atmosphere.data.axes[weatherapp.city2.name+' (Pressure)'] = 'y';
+
+
+		numRows = Math.min(weatherapp.city1.hourly_forecast.cnt, weatherapp.city2.hourly_forecast.cnt);
+
+
+		for (var i = 0; i< numRows; i++) {
+			date = new Date(weatherapp.city1.hourly_forecast.list[i].dt * 1000);
+			timestamps.push(date);
+
+			data1_clouds.push(weatherapp.city1.hourly_forecast.list[i].clouds.all);
+			data2_clouds.push(weatherapp.city2.hourly_forecast.list[i].clouds.all);
+
+			data1_pressure.push(weatherapp.city1.hourly_forecast.list[i].main.pressure);
+			data2_pressure.push(weatherapp.city2.hourly_forecast.list[i].main.pressure);
+		}
+
+		atmosphere.data.columns.push(timestamps);
+		atmosphere.data.columns.push(data1_clouds);
+		atmosphere.data.columns.push(data1_pressure);
+		atmosphere.data.columns.push(data2_clouds);
+		atmosphere.data.columns.push(data2_pressure);
+
+		return atmosphere;
+	}
+
+
+
+
+
+	function getWindData() {
+		var wind = {},
+				numRows,
+				date,
+				timestamps = ['timestamps'],
+				data1 = [weatherapp.city1.name],
+				data2 = [weatherapp.city2.name];
+
+		wind.data = {};
+
+		wind.axis = {
+			y : {
+				label : {
+					text : "Wind ( m/s s)",
+					position: 'outer-middle'
+				} 
+			}, 
+			x : {
+				label : {
+					text : "Time ( %m-%d %H:%M )",
+					position: "outer-right"
+				},
+				type: 'timeseries',
+				tick: {
+						format: '%m-%d %H:%M',
+						 culling: {
+								max: 7
+							}
+				}
+			}
+		}
+
+		wind.data.colors = {};
+		wind.data.colors[weatherapp.city1.name] = "#DE584C";
+		wind.data.colors[weatherapp.city2.name] = "#28609B";
+		wind.data.type = 'spline';
+		wind.data.x = "timestamps";
+		wind.data.columns = [];
+
+		numRows = Math.min(weatherapp.city1.hourly_forecast.cnt, weatherapp.city2.hourly_forecast.cnt);
+
+		for (var i = 0; i< numRows; i++) {
+			date = new Date(weatherapp.city1.hourly_forecast.list[i].dt * 1000);
+			timestamps.push(date);
+
+			data1.push(weatherapp.city1.hourly_forecast.list[i].wind.speed);
+			data2.push(weatherapp.city2.hourly_forecast.list[i].wind.speed);
+		}
+
+		wind.data.columns.push(timestamps);
+		wind.data.columns.push(data1);
+		wind.data.columns.push(data2);
+
+		return wind;
+	}
+
+
+
+
+
+
+
+
+	function getData(dataType) {
+		switch (dataType) {
+			case 'atmosphere':
+				return getAtmosphereData();
+				break;
+
+			case 'wind':
+				return getWindData();
+				break;
+
+			default:
+				return getTempData();
+
+		}
+	}
+
+
+
+
+
+
+
 
 	function setMeasurement(type) {
 
+		if (type != active_type) {
+			active_type = type;
+
+			$controls.find('.pure-button-active').removeClass('pure-button-active');
+			$controls.find('button[data-charttype='+type+']').addClass('pure-button-active');
+
+			render();
+		}
+
 	}
+
+
+
+
+
+
+
 
 	function render() {
+		var data = getData(active_type),
+				chartOpts;
 
+		chartOpts = $.extend({}, chart_defaults, data);
+
+		if($me) {
+			$me.destroy();
+		}
+
+
+		$me = c3.generate(chartOpts);
 	}
+
+
+
+
+
+
+
+
+	function attachEvents() {
+		$controls.on('click.chart-button', 'button', function() {
+			setMeasurement($(this).data('charttype'));
+		});
+	}
+
+
+
+
+
+
+
 
 	// Expose public attributes and methods
 	(function(self) {
 		self.$chart = $chart,
 		self.setMeasurement = setMeasurement,
-		self.render = render
+		self.render = render,
+		self.attachEvents = attachEvents
 	}(chart));
 
 	return chart;
@@ -494,7 +790,14 @@ weatherapp.statistics = (function() {
 				type : '',
 				$elem : undefined
 			},
-			$buttons = $('#statistics-controls button');
+			$buttons = $('#statistics-controls button'),
+			$city1Input = $('#city1-search input'),
+			$city2Input = $('#city2-search input');
+
+
+
+
+
 
 
 
@@ -529,10 +832,28 @@ weatherapp.statistics = (function() {
 			this.$me.find('.cloud').siblings()
 				.eq(0).html(weatherapp.city1.weather_current.clouds.all + '%').end()
 				.eq(1).html(weatherapp.city2.weather_current.clouds.all + '%');
+
+			// Add tooltip functionality
+			tc.$me.find('.tooltip-enabled[title]').qtip({
+				style : {
+					classes : 'wa-tooltip qtip-shadow'
+				},
+				position: {
+					my: 'bottom center',
+					at: 'top center'
+				}
+			});
 		}
 
 		return tc;
 	}());
+
+
+
+
+
+
+
 
 	/*
 	 * Hourly Forecast table
@@ -562,11 +883,34 @@ weatherapp.statistics = (function() {
 				rows.push(tr);
 			}
 			th.$me.append(rows);
+
+			// Add tooltip functionality
+			th.$me.find('.tooltip-enabled[title]').qtip({
+				style : {
+					classes : 'wa-tooltip qtip-shadow'
+				},
+				position: {
+					my: 'bottom center',
+					at: 'top center'
+				}
+			});
 		}
 
 		return th
 
 	}());
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/*
 	 * Daily Forecast table
@@ -598,11 +942,37 @@ weatherapp.statistics = (function() {
 
 			td.$me.append(rows);
 
+			// Add tooltip functionality
+			td.$me.find('.tooltip-enabled[title]').qtip({
+				style : {
+					classes : 'wa-tooltip qtip-shadow'
+				},
+				position: {
+					my: 'bottom center',
+					at: 'top center'
+				}
+			});
+
 		}
 
 		return td
 
 	}());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -646,10 +1016,24 @@ weatherapp.statistics = (function() {
 	}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	function createForecastCard(type, data) {
 		var card = $('<div class="wa-forecast-card">'),
 				conditions,
-				icon = $('<span class="wa-card-icon wi has-tooltip">'),
+				icon = $('<span class="wa-card-icon wi tooltip-enabled">'),
 				temp,
 				temp_max,
 				temp_min,
@@ -706,6 +1090,123 @@ weatherapp.statistics = (function() {
 	}
 
 
+
+
+
+
+
+	function showSearchSuggestions(input, data) {
+		var searchbox = $(input),
+				container = searchbox.closest('.wa-city-search'),
+				suggestionList = container.find('.wa-search-suggestions').empty(),
+				icons = $(input).siblings('.wa-icon-container'),
+				listItem,
+				suggestionElem,
+				state;
+
+		if (data.count) {
+
+			for (var i = 0; i < data.count; i++) {
+				listItem = data.list[i];
+				suggestionElem = $('<li class="wa-suggestions-elem">');
+
+				if (listItem.name) {
+					suggestionElem.append(listItem.name)
+					suggestionElem.data('city_id', listItem.id);
+					suggestionElem.data('city_name', listItem.name);
+				}
+
+				if (listItem.sys && listItem.sys.country) {
+					if (listItem.sys.country == 'US') {
+
+						//getUSState(suggestionElem, geocodingParams, listItem, suggestionList);
+						(function(suggestionElem) {
+							weatherapp.geocoding.requestState(''+listItem.coord.lat+','+listItem.coord.lon)
+							.done(function(geocode) {
+								state = weatherapp.geocoding.getState(geocode);
+								suggestionElem.append(', ' + state);
+								suggestionElem.append(', ' + listItem.sys.country);
+								suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + state + ', ' + listItem.sys.country);
+								suggestionList.append(suggestionElem);
+							});
+						}(suggestionElem));
+
+
+					} else {
+						suggestionElem.append(', ' + listItem.sys.country);
+						suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + listItem.sys.country);
+						suggestionList.append(suggestionElem);
+					}
+				}
+
+			}
+
+			suggestionList.css('width', container.width());
+			suggestionList.removeClass('is-closed');
+
+		} else {
+			icons.find('.fa-exclamation-circle').toggleClass('is-active is-inactive');
+		}
+	}
+
+
+
+
+
+
+
+
+
+	function citySearch() {
+		var input = $(this),
+				city = input.closest('.wa-city-search').data('citymodel'),
+				icons = input.siblings('.wa-icon-container');
+
+				icons.find('.fa-spinner').toggleClass('is-active is-inactive');
+
+				weatherapp.openweathermap.citySearch(input.val())
+					.done(function(data) {
+						icons.find('.fa-spinner').toggleClass('is-active is-inactive');
+						showSearchSuggestions(input, data)
+						weatherapp[city].searchResults = data;
+					}).fail(function() {
+						icons.find('.fa-spinner').toggleClass('is-active is-inactive');
+						icons.find('.fa-exclamation-triangle').toggleClass('is-active is-inactive');
+					});
+
+	}
+
+
+
+
+
+
+
+
+	function rerenderSection(city, id) {
+		var deferreds = [];
+
+		deferreds.push(weatherapp[city].setCity(id));
+		deferreds.push(weatherapp[city].setHourlyForecast());
+		deferreds.push(weatherapp[city].setDailyForecast());
+
+		$.when.apply($, deferreds).done(function() {
+			weatherapp.statistics.table_current.render();
+			weatherapp.statistics.table_daily.render();
+			weatherapp.statistics.table_hourly.render();
+			weatherapp.chart.render();
+		});
+	}
+
+
+
+
+
+
+
+
+
+
 	function attachEvents() {
 		var table = $container;
 
@@ -713,7 +1214,23 @@ weatherapp.statistics = (function() {
 			showTable($(this).data('tabletype'));
 		});
 
-		
+		$container.find('.wa-city-search').on('keydown.city-search', 'input', weatherapp.util.debounce(citySearch, 750))
+			.on('click.select-city', '.wa-suggestions-elem', function() {
+				var elem = $(this),
+						cityName = elem.data('city_name'),
+						cityID = elem.data('city_id'),
+						input = elem.closest('.wa-city-search').find('input'),
+						city = elem.closest('.wa-city-search').data('citymodel');
+
+				input.val(cityName);
+
+				weatherapp[city].id = cityID;
+
+				// Request weather conditions for new city
+				rerenderSection(city, cityID);
+
+				elem.parent().addClass('is-closed');
+		});
 	}
 
 
@@ -737,220 +1254,6 @@ weatherapp.statistics = (function() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function populateSearchSuggestions(input, data) {
-	var searchbox = $(input),
-			container = searchbox.closest('.wa-city-search'),
-			suggestionList = container.find('.wa-search-suggestions').empty(),
-			icons = $(input).siblings('.wa-icon-container'),
-			geocodingParams,
-			listItem,
-			suggestionElem;
-
-	var getUSState = function(suggestionElem, geocodingParams, listItem, suggestionList) {
-		$.get(weatherapp.geocoding.url + $.param(geocodingParams))
-		.done(function(data) {
-			for (var i = 0; i < data.results[0].address_components.length; i++) {
-				if (data.results[0].address_components[i].types.indexOf("administrative_area_level_1") > -1) {
-					suggestionElem.append(', ' + data.results[0].address_components[i].short_name);
-					suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + data.results[0].address_components[i].short_name);
-				}
-			}
-
-			suggestionElem.append(', ' + listItem.sys.country);
-			suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + listItem.sys.country);
-			suggestionList.append(suggestionElem);
-			
-		});
-	}
-
-	if (data.count) {
-
-		for (var i = 0; i < data.count; i++) {
-			listItem = data.list[i];
-			suggestionElem = $('<li class="wa-suggestions-elem">');
-
-			if (listItem.name) {
-				suggestionElem.append(listItem.name)
-				suggestionElem.data('city_id', listItem.id);
-				suggestionElem.data('city_name', listItem.name);
-			}
-
-			if (listItem.sys && listItem.sys.country) {
-				if (listItem.sys.country == 'US') {
-					icons.find('.fa-spinner').addClass('is-active').removeClass('is-inactive');
-
-					geocodingParams = {
-						'key' : weatherapp.geocoding.apikey,
-						'latlng' : listItem.coord.lat + ',' + listItem.coord.lon
-					}
-
-					getUSState(suggestionElem, geocodingParams, listItem, suggestionList);
-
-
-				} else {
-					suggestionElem.append(', ' + listItem.sys.country);
-					suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + listItem.sys.country);
-					suggestionList.append(suggestionElem);
-				}
-			}
-
-			icons.find('.fa-spinner').addClass('is-inactive').removeClass('is-active');
-		}
-
-		suggestionList.css('min-width', container.width());
-		suggestionList.removeClass('is-closed');
-
-	} else {
-		icons.find('.fa-exclamation-circle').toggleClass('is-active is-inactive');
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function citysearch() {
-	var input = $(this),
-			findParameters = $.extend({}, weatherapp.openweathermap.options.find, {'q':input.val()}),
-			urlString = weatherapp.openweathermap.urls.find + $.param(findParameters),
-			icons = input.siblings('.wa-icon-container'),
-			city = input.closest('.wa-city-search').data('citymodel');
-
-	icons.find('.fa-spinner').toggleClass('is-active is-inactive');
-	console.log('making ajax request for q=' + input.value);
-
-
-	$.get(urlString)
-		.done(function(data) {
-			icons.find('.fa-spinner').toggleClass('is-active is-inactive');
-			populateSearchSuggestions(input, data);
-			weatherapp[city].searchResults = data;
-		}).fail(function() {
-			icons.find('.fa-spinner').toggleClass('is-active is-inactive');
-			icons.find('.fa-exclamation-triangle').toggleClass('is-active is-inactive');
-		});
-};
-
-
-
-var citysearch_debounced = weatherapp.util.debounce(citysearch, 750);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Search funtionality
-
-$('.wa-city-search').on('keydown.city-search', 'input', citysearch_debounced)
-	.on('click.select-city', '.wa-suggestions-elem', function() {
-		var elem = $(this),
-				cityName = elem.data('city_name'),
-				cityID = elem.data('city_id'),
-				input = elem.closest('.wa-city-search').find('input'),
-				city = elem.closest('.wa-city-search').data('citymodel');
-
-		input.val(cityName);
-
-		weatherapp[city].name = cityName;
-		weatherapp[city].id = cityID;
-		weatherapp[city].weather_current = weatherapp[city].searchResults.list.filter(function( obj ) {
-			return obj.id == cityID;
-		})[0];
-
-		elem.parent().addClass('is-closed');
-});
 
 
 
@@ -997,6 +1300,8 @@ weatherapp.init = function () {
 
 		weatherapp.chart.setMeasurement('temp');
 		weatherapp.chart.render();
+
+		weatherapp.chart.attachEvents();
 	});
 
 
