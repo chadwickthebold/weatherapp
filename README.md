@@ -38,3 +38,11 @@ A deployed version of this project can be viewed at [tylerchadwick.com/weatherap
 - [ ] Use promises in a more generic way in resolving lat/long coordinates and states
 - [ ] Implement MVC to handle data manipulation, views, and component relationships
 - [ ] Add translations with i18next
+- [ ] Add feature detection with Modernizr
+- [ ] Add horizontal/veritcal selection for statistics table
+- [ ] Compelte themeing support
+- [ ] Add range selection for forecasting time
+- [ ] Clean up main.js (organization, comments, variables)
+- [ ] Implement require/browserify
+- [ ] Handle AJAX errors
+- [ ] Get local time for hourly forecasts

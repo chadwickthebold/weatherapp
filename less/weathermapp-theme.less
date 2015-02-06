@@ -1,4 +1,6 @@
 .wa-theme-light {
+
+	@textColor: #000000;
 	@bgColor: #FFFFFF;
 	@bgColorAlt: #E1E1E1;
 	@hoverColor: #D3D3D3;
@@ -19,6 +21,20 @@
 
 .wa-theme-dark {
 
+
+	@textColor: #f7f7f7;
+	@bgColor: #333333;
+	@bgColorAlt: #4A4A4A;
+	@hoverColor: #666666;
+	@outlineColor: #F7F7F7;
+	@outlineColorAlt: #E1E1E1;
+	@utilColor: #2196F3;
+	@errorColor: #B71C1C;
+	@primaryColor: #DE584C; //Red
+	@secondaryColor: #28609B; //Blue
+
+
+	.wa-theme-base();
 }
 
 
@@ -28,6 +44,7 @@
 
 .wa-theme-base() {
 	background-color: @bgColor;
+	color: @textColor;
 
 
 
@@ -75,6 +92,23 @@
 			border-right-width: 0;
 		}
 
+		tbody {
+			border-bottom: 1px solid @outlineColor;
+
+			tr:first-child {
+				th, td {
+					border-top-width: 0;
+				}
+			}
+
+			tr:last-child {
+				th, td {
+					border-bottom-width: 0;
+				}
+			}
+
+		}
+
 		.wa-city-search {
 			border: 1px solid @outlineColorAlt;
 
@@ -110,7 +144,9 @@
 	}
 
 
-
+	.wa-footer {
+		border-top: 1px solid @outlineColorAlt;
+	}
 
 
 
