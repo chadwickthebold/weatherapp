@@ -1,11 +1,13 @@
-/*
+var weatherapp = (function() {
+
+
+/**
  * Application namespace
+ * @private
+ * @global
+ * @namespace
  */
-var weatherapp = weatherapp || {};
-
-
-
-(function() {
+var weatherapp = {};
 
 
 
@@ -26,21 +28,20 @@ var weatherapp = weatherapp || {};
 
 
 
-
-
-
-
-
-
-
-/**********************************
- Utilities
-**********************************/
+/**
+ * Private internal namespace for utility functions
+ * @private
+ * @namespace
+ */
 weatherapp.util = {};
 
-/*
- * Function debounce utility
+
+/**
+ * Debounce utility
  * Courtesy of David Walsh + Underscore
+ * @param {Function} func The function to debounce
+ * @param {Number} wait Delay for debounce
+ * @param {Boolean} immediate Immediate execution flag
  */
 weatherapp.util.debounce = function(func, wait, immediate) {
 	var timeout;
@@ -58,26 +59,31 @@ weatherapp.util.debounce = function(func, wait, immediate) {
 };
 
 
+/**
+ * Show the global notification that an AJAX request is in progress
+ */
+weatherapp.util.showLoadingIndicator = function() {
+
+}
 
 
+/**
+ * Hide the global notification that an AJAX request is in progress
+ */
+weatherapp.util.hideLoadingIndicator = function() {
+
+}
 
 
-
-
-
-
-/**********************************
- Configuration
-**********************************/
-
-
-
-/*
- * Application Configuration
+/**
+ * Global application settings
+ * @public
  */
 weatherapp.options = {
-	'lang' : 'en',
-	'units' : 'metric'
+	'lang' : 'en', //Currently language
+	'units' : 'metric', //#TODO : extend this into an object with units
+	'theme' : 'light',
+	'orientation' : 'horizontal'
 };
 
 
@@ -99,26 +105,15 @@ weatherapp.options = {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- * openWeatherMap configuration and utilities
+/**
+ * openWeatherMap API configuration and utilities
+ * @private
+ * @namespace
  */
 weatherapp.openweathermap = (function() {
 	var openweathermap = {},
 			apikey = 'b3bca1dfe94a0bce42d25c1533403005',
-			urls = {
+			urls = { 
 				'find' : 'http://api.openweathermap.org/data/2.5/find?',
 				'current' : 'http://api.openweathermap.org/data/2.5/weather?',
 				'forecast3h' : 'http://api.openweathermap.org/data/2.5/forecast?',
@@ -143,18 +138,30 @@ weatherapp.openweathermap = (function() {
 				'13d' : 'wi-day-snow',
 				'13n' : 'wi-night-alt-snow',
 				'50d' : 'wi-dust',
-				'50n' : 'wi-dust',
+				'50n' : 'wi-dust'
 			}
 
-		// Generic request to openweathermap API, returnes deferred object
-		function request(url, params) {
 
-			return $.get(url + $.param(params));
+		/** 
+		 * Generic request to openweathermap API, returnes deferred object
+		 * All functions which use this utility should return the deferred 
+		 * object themselves, so that we can sync ajax behavior
+		 * @private
+		 * @param {string} urlType
+		 * @param {Object} params 
+		 */
+		function request(urlType, params) {
+
+			return $.get(urls[urlType] + $.param(params));
 
 		}
 
 
-		// Search for a given city name, returns array of objects with name and id
+		/**
+		 * Search for a given city name
+		 * @public
+		 * @param {String} name
+		 */
 		function citySearch(name) {
 			var params = {
 				q : name,
@@ -163,11 +170,16 @@ weatherapp.openweathermap = (function() {
 				units : weatherapp.options.units
 			}
 
-			return request(urls['find'], params);
+			return request('find', params);
 
 		}
 
-		// get the current weather for a given city ID
+
+		/**
+		 * Get the current weather for a given city ID
+		 * @public
+		 * @param {Number} id City ID
+		 */
 		function getCurrent(id) {
 			var params = {
 				id : id,
@@ -175,9 +187,15 @@ weatherapp.openweathermap = (function() {
 				units : weatherapp.options.units
 			};
 
-			return request(urls['current'], params);
+			return request('current', params);
 		}
 
+
+		/**
+		 * Get the 16-day daily forecast for a given city ID
+		 * @public
+		 * @param {Number} id City ID
+		 */
 		function getDaily(id) {
 			var params = {
 				id : id,
@@ -185,10 +203,16 @@ weatherapp.openweathermap = (function() {
 				units : weatherapp.options.units
 			}
 
-			return request(urls['forecast16d'], params);
+			return request('forecast16d', params);
 
 		}
 
+
+		/**
+		 * Get the 5day/3hour forecast for a given city ID
+		 * @public
+		 * @param {Number} id City ID
+		 */
 		function getHourly(id) {
 			var params = {
 				id : id,
@@ -196,14 +220,12 @@ weatherapp.openweathermap = (function() {
 				units : weatherapp.options.units
 			}
 
-			return request(urls['forecast3h'], params);
+			return request('forecast3h', params);
 		}
 
 
 	// Expose public attributes and methods
 	(function(self) {
-		self.apikey = apikey;
-		self.urls = urls;
 		self.getCurrent = getCurrent;
 		self.getDaily = getDaily;
 		self.getHourly = getHourly;
@@ -211,7 +233,9 @@ weatherapp.openweathermap = (function() {
 		self.iconMap = iconMap;
 	}(openweathermap));
 
+
 	return openweathermap;
+
 
 }());
 
@@ -234,26 +258,36 @@ weatherapp.openweathermap = (function() {
 
 
 
-
-
-
-
-/*
+/**
  * Geocoding configuration and utilities
+ * @private
+ * @namespace
  */
 weatherapp.geocoding =  (function() {
 	var geocoding = {},
 			apikey = 'AIzaSyC6y5K_nqcuCxnqOTpKc6JVA2M0p_vQ9oI',
 			url = 'https://maps.googleapis.com/maps/api/geocode/json?';
 
-			// given comma separated lat/lng coodinates, return the short name of the US state. Assume admin level 1
+
+			/**
+			 * Given a comma separated set of lat/long coordinates, return a promise which will return the US state name
+			 * @public
+			 * @param {String} latlng Comma separated lat/long coordinates
+			 * @returns {Object}
+			 */
 			function requestState(latlng) {
 
 				return $.get(url + "latlng=" + latlng);
 
 			}
 
-			// Get the US state given the geocode response
+
+			/**
+			 * Get the US state from a given geocode response
+			 * @public
+			 * @param {Object} data The data response from the Google Geocoding API
+			 * @returns {String}
+			 */
 			function getState(data) {
 				if (data.results.length) {
 					for (var i = 0; i < data.results[0].address_components.length; i++) {
@@ -264,12 +298,12 @@ weatherapp.geocoding =  (function() {
 				}
 			}
 
+
 			(function(self){
-				self.apikey = apikey;
-				self.url = url;
 				self.getState = getState;
 				self.requestState = requestState;
 			}(geocoding));
+
 
 			return geocoding
 }());
@@ -293,64 +327,28 @@ weatherapp.geocoding =  (function() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**********************************
- Component Models
-**********************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
+/**
  * City Consturctor
+ * @private
+ * @constructor
+ * @param {String} designation A unique string identifier this city
  */
 weatherapp.city = function(designation) {
 	var self = this,
 			$input = $('#' + designation + '-search').find('input');
 
-	//Set the city using a given ID, returning a deferred object to work with
+
+	/**
+	 * Set the city using a given ID, returning a deferred object to work with
+	 * @public
+	 * @param {Number} id A new city ID from the OWM API
+	 */
 	function setCity(id) {
 		self.id = id,
 		$deferred = $.Deferred();
 		return weatherapp.openweathermap.getCurrent(id).then(function(data) {
 			self.weather_current = data;
-			if (data.sys.country == "US" && data.coord.lon && data.coord.lat) { // Need to find state name
+			if (data.sys && data.sys.country == "US" && data.coord.lon && data.coord.lat) { // Need to find state name
 				return weatherapp.geocoding.requestState(''+data.coord.lat+','+data.coord.lon).done(function(geocode) {
 					self.name = data.name + ', ' + weatherapp.geocoding.getState(geocode) + ', ' + data.sys.country;
 					$input.val(self.name);
@@ -362,12 +360,23 @@ weatherapp.city = function(designation) {
 		});
 	}
 
+
+	/**
+	 * Refresh the daily forecast for this city
+	 * @public
+	 * @returns {Object} A promise object
+	 */
 	function setDailyForecast() {
 		return weatherapp.openweathermap.getDaily(self.id).done(function(data) {
 			self.daily_forecast = data;
 		});
 	}
 
+	/**
+	 * Refresh the hourly forecast for this city
+	 * @public
+	 * @returns {Object} A promise object
+	 */
 	function setHourlyForecast() {
 		return weatherapp.openweathermap.getHourly(self.id).done(function(data) {
 			self.hourly_forecast = data;
@@ -377,10 +386,8 @@ weatherapp.city = function(designation) {
 
 	// Expose attributes and methods
 	(function(self) {
-		self.designation = designation,
 		self.id = 0,
 		self.name = '',
-		self.searchResults = undefined,
 		self.weather_current = undefined,
 		self.daily_forecast = undefined,
 		self.hourly_forecast = undefined,
@@ -388,7 +395,7 @@ weatherapp.city = function(designation) {
 		self.setCity = setCity,
 		self.setDailyForecast = setDailyForecast,
 		self.setHourlyForecast = setHourlyForecast
-	}(self));
+	}(this));
 
 };
 
@@ -411,36 +418,27 @@ weatherapp.city = function(designation) {
 
 
 
-
-
-
-
-
-
-
-
-/*
+/**
  * Chart component
+ * @public
+ * @namespace
  */
 weatherapp.chart = (function() {
-	var chart = {},
-			$me,
+	var $me,
 			$container = $('#chart-container'),
 			$controls = $container.find('.wa-charts-controls'),
 			$chart = $container.find('.wa-charts-chart'),
 			active_type = '',
-			active_time = '',
 			chart_defaults = {
 				bindto : "#chart"
 			}
 
 
-
-
-
-
-
-
+	/**
+	 * Get the configuration for the temperature chart
+	 * @private
+	 * @returns {Object} The C3 configuration options for this chart type
+	 */
 	function getTempData() {
 		var temp = {},
 				numRows,
@@ -498,14 +496,11 @@ weatherapp.chart = (function() {
 	}
 
 
-
-
-
-
-
-
-
-
+	/**
+	 * Get the configuration for the atmospher chart
+	 * @private
+	 * @returns {Object} The C3 configuration options for this chart type
+	 */
 	function getAtmosphereData() {
 		var atmosphere = {},
 				numRows,
@@ -587,9 +582,11 @@ weatherapp.chart = (function() {
 	}
 
 
-
-
-
+	/**
+	 * Get the configuration for the wind chart
+	 * @private
+	 * @returns {Object} The C3 configuration options for this chart type
+	 */
 	function getWindData() {
 		var wind = {},
 				numRows,
@@ -647,12 +644,12 @@ weatherapp.chart = (function() {
 	}
 
 
-
-
-
-
-
-
+	/**
+	 * Get the c3 configuration object for a specific type
+	 * @private
+	 * @param {String} dataType 
+	 * @returns {Object} The C3 configuration options for the given chart type
+	 */
 	function getData(dataType) {
 		switch (dataType) {
 			case 'atmosphere':
@@ -670,12 +667,11 @@ weatherapp.chart = (function() {
 	}
 
 
-
-
-
-
-
-
+	/**
+	 * Change the visible chart type
+	 * @public
+	 * @param {String} type
+	 */
 	function setMeasurement(type) {
 
 		if (type != active_type) {
@@ -690,12 +686,10 @@ weatherapp.chart = (function() {
 	}
 
 
-
-
-
-
-
-
+	/**
+	 * Render the chart, overwriting existing configuration if necessary
+	 * @public
+	 */
 	function render() {
 		var data = getData(active_type),
 				chartOpts;
@@ -711,12 +705,10 @@ weatherapp.chart = (function() {
 	}
 
 
-
-
-
-
-
-
+	/**
+	 * Attach control events 
+	 * @private
+	 */
 	function attachEvents() {
 		$controls.on('click.chart-button', 'button', function() {
 			setMeasurement($(this).data('charttype'));
@@ -724,21 +716,17 @@ weatherapp.chart = (function() {
 	}
 
 
-
-
-
-
-
-
 	// Expose public attributes and methods
 	(function(self) {
-		self.$chart = $chart,
 		self.setMeasurement = setMeasurement,
-		self.render = render,
-		self.attachEvents = attachEvents
-	}(chart));
+		self.render = render
+	}(this));
 
-	return chart;
+
+	attachEvents();
+
+
+	return this;
 
 }());
 
@@ -761,27 +749,10 @@ weatherapp.chart = (function() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- * Statistics component
+/**
+ * Statistics section component
+ * @public
+ * @namespace
  */
 weatherapp.statistics = (function() {
 	var stats = {},
@@ -802,24 +773,33 @@ weatherapp.statistics = (function() {
 
 
 
-	/*
+
+	/**
 	 * Current conditions table
+	 * @public
 	 */
 	var table_current = (function(){
 		var tc = {};
 
 		tc.$me = $('#stats_current');
 
+		// Render the table body for the current conditions
 		tc.render = function() {
+
+			// Empty all of the table cells
 			this.$me.find('td').empty();
-			this.$me.find('.temp').siblings()
-				.eq(0).html(Math.round(weatherapp.city1.weather_current.main.temp) + '&deg;').end()
-				.eq(1).html(Math.round(weatherapp.city2.weather_current.main.temp) + '&deg;');
-			this.$me.find('.cond').siblings() //Append weather-icon
+
+			// Append weather-icon
+			this.$me.find('.cond').siblings()
 				.eq(0).html('<span class="wa-current-icon wi ' + weatherapp.openweathermap.iconMap[weatherapp.city1.weather_current.weather[0].icon] + '"></span>'
 						+ weatherapp.city1.weather_current.weather[0].description).end()
 				.eq(1).html('<span class="wa-current-icon wi ' + weatherapp.openweathermap.iconMap[weatherapp.city2.weather_current.weather[0].icon] + '"></span>'
 						+ weatherapp.city2.weather_current.weather[0].description);
+
+			// Add weather metrics
+			this.$me.find('.temp').siblings()
+				.eq(0).html(Math.round(weatherapp.city1.weather_current.main.temp) + '&deg;').end()
+				.eq(1).html(Math.round(weatherapp.city2.weather_current.main.temp) + '&deg;');
 			this.$me.find('.hum').siblings()
 				.eq(0).html(weatherapp.city1.weather_current.main.humidity + '%').end()
 				.eq(1).html(weatherapp.city2.weather_current.main.humidity + '%');
@@ -855,33 +835,41 @@ weatherapp.statistics = (function() {
 
 
 
-	/*
-	 * Hourly Forecast table
+
+
+	/**
+	 * Hourly Forecast table component
+	 * @public
 	 */
 	var table_hourly = (function(){
 		var th = {};
 
 		th.$me = $('#stats_hourly');
 
+		// Render the table body for the hourly forecast
 		th.render = function() {
 			th.$me.empty(); // Empty the existing structure (if any)
 
 			var numRows = Math.min(weatherapp.city1.hourly_forecast.cnt, weatherapp.city2.hourly_forecast.cnt),
 					rows = [];
 
+			// Loop through the forecast entries, appending them to the table body
 			for (var i = 0; i< numRows; i++) {
 				var tr = $('<tr>'),
 						td1 = $('<td>').append(createForecastCard('hour', weatherapp.city1.hourly_forecast.list[i])),
 						td2 = $('<td>').append(createForecastCard('hour', weatherapp.city2.hourly_forecast.list[i])),
 						date = new Date(weatherapp.city1.hourly_forecast.list[i].dt * 1000),
 
+				// Format the date string for the row
 				date = date.toString();
 				date = date.substr(0, date.length-18) //Remove trailing format from date string
 
-
+				// Append the date as well as the forecast cards
 				tr.append('<th class="date">'+date).append(td1).append(td2);
 				rows.push(tr);
 			}
+
+			// Append all the rows to the table body
 			th.$me.append(rows);
 
 			// Add tooltip functionality
@@ -909,37 +897,40 @@ weatherapp.statistics = (function() {
 
 
 
-
-
-
-	/*
-	 * Daily Forecast table
+	/**
+	 * Daily Forecast table component
+	 * @public
 	 */
 	var table_daily = (function(){
 		var td = {};
 
 		td.$me = $('#stats_daily');
 
+		// Render the table body for the daily forecast
 		td.render = function() {
 			td.$me.empty(); // Empty the existing structure (if any)
 
 			var numRows = Math.min(weatherapp.city1.daily_forecast.cnt, weatherapp.city2.daily_forecast.cnt),
 					rows = [];
 
+			// Loop through the forecast entries, appending them to the table body
 			for (var i = 0; i< numRows; i++) {
 				var tr = $('<tr>'),
 						td1 = $('<td>').append(createForecastCard('day', weatherapp.city1.daily_forecast.list[i])),
 						td2 = $('<td>').append(createForecastCard('day', weatherapp.city2.daily_forecast.list[i])),
-						date = new Date(weatherapp.city1.hourly_forecast.list[i].dt * 1000),
+						date = new Date(weatherapp.city1.daily_forecast.list[i].dt * 1000),
 
+				// Format the date string for the row
 				date = date.toString();
 				date = date.substr(0, date.length-29) //Remove trailing format from date string
 
 
+				// Append the date as well as the forecast cards
 				tr.append('<th class="date">'+date).append(td1).append(td2);
 				rows.push(tr);
 			}
 
+			// Append all the rows to the table body
 			td.$me.append(rows);
 
 			// Add tooltip functionality
@@ -968,14 +959,11 @@ weatherapp.statistics = (function() {
 
 
 
-
-
-
-
-
-
-
-
+/**
+	 * Switch the view to the table of the specified type
+	 * @public
+	 * @param {String} table The table type to display, either 'current', 'hourly', or 'daily'
+	 */
 	function showTable(table) {
 		$buttons.removeClass('pure-button-active');
 		$buttons.filter('[data-tabletype='+table+']').addClass('pure-button-active');
@@ -1016,20 +1004,12 @@ weatherapp.statistics = (function() {
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	/**
+	 * Create a forecast card of a given type from the provided data
+	 * @private
+	 * @param {String} type The forecast time type, either 'hour' or 'day'
+	 * @param {Object} data The forecast data from a certain city, is an element of the 'list' array in an OWM object
+	 */
 	function createForecastCard(type, data) {
 		var card = $('<div class="wa-forecast-card">'),
 				conditions,
@@ -1041,7 +1021,6 @@ weatherapp.statistics = (function() {
 				humidity,
 				wind;
 
-
 		switch (type) {
 			case 'hour':
 				card.addClass('forecast-hour');
@@ -1050,10 +1029,12 @@ weatherapp.statistics = (function() {
 				clouds = data.clouds.all + '%';
 				wind = data.wind.speed + ' m/s';
 
+				// Condition icon
 				icon.attr('title', data.weather[0].description);
 				icon.addClass(weatherapp.openweathermap.iconMap[data.weather[0].icon]);
 				card.append(icon);
 
+				// Weather metrics
 				card.append('<span>'+temp+'</span><br>');
 				card.append('<span>Humidity: '+humidity+'</span><br>');
 				card.append('<span>Clouds: '+clouds+'</span><br>');
@@ -1070,10 +1051,12 @@ weatherapp.statistics = (function() {
 				clouds = data.clouds + '%',
 				wind = data.speed + ' m/s';
 
+				// Condition  icon
 				icon.attr('title', data.weather[0].description);
 				icon.addClass(weatherapp.openweathermap.iconMap[data.weather[0].icon]);
 				card.append(icon);
 
+				// Weather metrics
 				card.append('<span class="temp-max">' + temp_max + '</span> &#124; <span class="temp-min">' +temp_min + '</span><br>');
 				card.append('<span>Humidity: '+humidity+'</span><br>');
 				card.append('<span>Clouds: '+clouds+'</span><br>');
@@ -1090,11 +1073,12 @@ weatherapp.statistics = (function() {
 	}
 
 
-
-
-
-
-
+	/**
+	 * Parse the OWM result and display a list of search results for the user to choose from
+	 * @private
+	 * @param {Object} input A DOM element or jQuery object of the searchbox
+	 * @param {Object} data The JSON result from the OWM API
+	 */
 	function showSearchSuggestions(input, data) {
 		var searchbox = $(input),
 				container = searchbox.closest('.wa-city-search'),
@@ -1104,22 +1088,25 @@ weatherapp.statistics = (function() {
 				suggestionElem,
 				state;
 
+		// Only parse results if some were returned
 		if (data.count) {
 
 			for (var i = 0; i < data.count; i++) {
 				listItem = data.list[i];
 				suggestionElem = $('<li class="wa-suggestions-elem">');
 
+				// Get the city name
 				if (listItem.name) {
 					suggestionElem.append(listItem.name)
 					suggestionElem.data('city_id', listItem.id);
 					suggestionElem.data('city_name', listItem.name);
 				}
 
+				// Get the country, and the US state if applicable
 				if (listItem.sys && listItem.sys.country) {
 					if (listItem.sys.country == 'US') {
 
-						//getUSState(suggestionElem, geocodingParams, listItem, suggestionList);
+						// Make a request to the Google geocoding API to get the US state by lat/long coordinates
 						(function(suggestionElem) {
 							weatherapp.geocoding.requestState(''+listItem.coord.lat+','+listItem.coord.lon)
 							.done(function(geocode) {
@@ -1132,7 +1119,7 @@ weatherapp.statistics = (function() {
 						}(suggestionElem));
 
 
-					} else {
+					} else { // Append the country to the list element, then add it to the list
 						suggestionElem.append(', ' + listItem.sys.country);
 						suggestionElem.data('city_name', suggestionElem.data('city_name') + ', ' + listItem.sys.country);
 						suggestionList.append(suggestionElem);
@@ -1141,10 +1128,11 @@ weatherapp.statistics = (function() {
 
 			}
 
+			// Set the flyout width, and open it
 			suggestionList.css('width', container.width());
 			suggestionList.removeClass('is-closed');
 
-		} else {
+		} else { // Show an information indicator if no results were returned
 			icons.find('.fa-exclamation-circle').toggleClass('is-active is-inactive');
 		}
 	}
@@ -1156,20 +1144,24 @@ weatherapp.statistics = (function() {
 
 
 
-
+	/**
+	 * Search for a city name input into the search box
+	 * private
+	 */
 	function citySearch() {
 		var input = $(this),
 				city = input.closest('.wa-city-search').data('citymodel'),
 				icons = input.siblings('.wa-icon-container');
 
+				// Turn on AJAX indicator
 				icons.find('.fa-spinner').toggleClass('is-active is-inactive');
 
+				// Make an AJAX request to the OWM API
 				weatherapp.openweathermap.citySearch(input.val())
-					.done(function(data) {
+					.done(function(data) { //On success, turn off AJAX indicator and show the suggestions
 						icons.find('.fa-spinner').toggleClass('is-active is-inactive');
-						showSearchSuggestions(input, data)
-						weatherapp[city].searchResults = data;
-					}).fail(function() {
+						showSearchSuggestions(input, data);
+					}).fail(function() { // Display error message if the call was unsuccessful
 						icons.find('.fa-spinner').toggleClass('is-active is-inactive');
 						icons.find('.fa-exclamation-triangle').toggleClass('is-active is-inactive');
 					});
@@ -1177,19 +1169,22 @@ weatherapp.statistics = (function() {
 	}
 
 
-
-
-
-
-
-
-	function rerenderSection(city, id) {
+	/**
+	 * Render the statistics section for a given column and city id
+	 * @private
+	 * @param {String} city Unique identifier for the city object
+	 * @param {Number} id New city ID to use
+	 */
+	function renderSection(city, id) {
 		var deferreds = [];
 
+		// Make AJAX calls
+		// #TODO check for race condition
 		deferreds.push(weatherapp[city].setCity(id));
 		deferreds.push(weatherapp[city].setHourlyForecast());
 		deferreds.push(weatherapp[city].setDailyForecast());
 
+		// Perform updates once calls resolve
 		$.when.apply($, deferreds).done(function() {
 			weatherapp.statistics.table_current.render();
 			weatherapp.statistics.table_daily.render();
@@ -1199,23 +1194,22 @@ weatherapp.statistics = (function() {
 	}
 
 
-
-
-
-
-
-
-
-
+	/**
+	 * Attach control events
+	 * @public
+	 */
 	function attachEvents() {
 		var table = $container;
 
+		// Button controls
 		$buttons.on('click.stats-button', function() {
 			showTable($(this).data('tabletype'));
 		});
 
-		$container.find('.wa-city-search').on('keydown.city-search', 'input', weatherapp.util.debounce(citySearch, 750))
-			.on('click.select-city', '.wa-suggestions-elem', function() {
+		// Search box behavior
+		$container.find('.wa-city-search')
+			.on('keydown.city-search', 'input', weatherapp.util.debounce(citySearch, 750)) // City name search
+			.on('click.select-city', '.wa-suggestions-elem', function() { // Suggestion list selection
 				var elem = $(this),
 						cityName = elem.data('city_name'),
 						cityID = elem.data('city_id'),
@@ -1227,19 +1221,15 @@ weatherapp.statistics = (function() {
 				weatherapp[city].id = cityID;
 
 				// Request weather conditions for new city
-				rerenderSection(city, cityID);
+				renderSection(city, cityID);
 
 				elem.parent().addClass('is-closed');
 		});
 	}
 
 
-
-
 	// Expose public attributes and methods
 	(function(self) {
-		self.$container = $container,
-		self.active_table = active_table,
 		self.table_current = table_current,
 		self.table_hourly = table_hourly,
 		self.table_daily = table_daily,
@@ -1247,7 +1237,9 @@ weatherapp.statistics = (function() {
 		self.attachEvents = attachEvents;
 	}(stats));
 
+
 	return stats;
+
 
 }());
 
@@ -1270,9 +1262,9 @@ weatherapp.statistics = (function() {
 
 
 
-
-/*
+/**
  * Application Initialization
+ * @private
  */
 weatherapp.init = function () {
 
@@ -1301,7 +1293,6 @@ weatherapp.init = function () {
 		weatherapp.chart.setMeasurement('temp');
 		weatherapp.chart.render();
 
-		weatherapp.chart.attachEvents();
 	});
 
 
@@ -1320,21 +1311,26 @@ weatherapp.init = function () {
 
 }
 
+
 weatherapp.init();
 
 
 
 
 
+// #TODO
+// weatherapp = {
+// 	cities = []
+// 	chart = []
+// 	settings = []
+// }
 
 
 
 
 
-
-
-
-
+// Return the public API for this application
+return weatherapp;
 
 
 
