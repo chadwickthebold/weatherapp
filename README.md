@@ -47,3 +47,5 @@ A deployed version of this project can be viewed at [tylerchadwick.com/weatherap
 - [ ] Handle AJAX errors
 - [ ] Get local time for hourly forecasts
 - [ ] Add global indicator for in-progress AJAX calls
+- [ ] Use one generic function for all 3 stats tables
+- [ ] Investigate closure compiler warnings
